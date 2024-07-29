@@ -1,0 +1,428 @@
+/*
+
+In the following program, we are creating a square wave of 50% duty cycle (with equal
+portions high and low) on the PORTB.5 bit. Timer0 is used to generate the time delay.
+Analyze the program.*//*
+.INCLUDE "M32DEF.INC"
+.MACRO  INITSTACK ; SET OF STACK
+	LDI R20 , HIGH(RAMEND)
+	OUT SPH , R20
+	LDI R20 , LOW(RAMEND)
+	OUT SPL , R20
+.ENDMACRO
+	INITSTACK 
+	LDI R16 , 1<<5 ; R16 = 0X20 (0010 0000 FOR PB5)
+	SBI DDRB , 5 ; PB5 AS AN OUTPUT
+	LDI R17, 0
+	OUT PORTB , R17 ; CLEAR PORTB
+BEGIN: RCALL DELAY  ; CALL TIMER DELAY 
+	   EOR  R17, R16 ; TOGGLE D5 OF R17 BY EX-ORING WITH 1
+	   OUT PORTB , R17 ; TOGGLE PB5
+	   RJMP BEGIN
+//----TIMER0 DELAY
+DELAY : LDI R20 , 0XF2 ; R20 = 0XF2
+		OUT TCNT0 , R20 ; LOAD TIMER0
+		LDI R20 , 0X01
+		OUT TCCR0 , R20 ; TIMER0 , NORMAL MODE , INT CLK, NO PRESCALAR
+AGAIN : IN R20 , TIFR ;READ TIFR
+		SBRS R20 , TOV0 ; IF TOV0 IS SET SKIP NEXT INSTRUCTION
+		RJMP AGAIN
+		LDI R20 , 0X00
+		OUT TCCR0, R20 ; STOP TIMER0
+		LDI R20 , (1<<TOV0)
+		OUT TIFR , R20 ; CLEAR TOV0 FLAG BY WRITING a 1 TO TIFR 
+		RET */
+
+/*Assuming that XTAL = 8 MHz, write a program to generate a square wave with a peri-
+od of 12.5 us on pin PORTB.3.
+
+Solution:
+For a square wave with T = 12.5 us we must have a time delay of 6.25 us. Because
+XTAL=8 MHz, the counter counts up every 0.125 us. This means that we need 6.25 us
+/0.125 us = 50 clocks. 256 - 50 = 206 = 0xCE. Therefore, we have TCNT0 = 0xCE.*/
+
+/*.INCLUDE "M32DEF.INC"
+.MACRO  INITSTACK ; SET OF STACK
+	LDI R20 , HIGH(RAMEND)
+	OUT SPH , R20
+	LDI R20 , LOW(RAMEND)
+	OUT SPL , R20
+.ENDMACRO
+	INITSTACK 
+	LDI R16 , 0x08 ; R16 = 0X20 (0010 0000 FOR PB5)
+	SBI DDRB , 3 ; PB5 AS AN OUTPUT
+	LDI R17, 0
+	OUT PORTB , R17 ; CLEAR PORTB
+BEGIN: RCALL DELAY  ; CALL TIMER DELAY 
+	   EOR  R17, R16 ; TOGGLE D5 OF R17 BY EX-ORING WITH 1
+	   OUT PORTB , R17 ; TOGGLE PB5
+	   RJMP BEGIN
+//----TIMER0 DELAY
+DELAY : LDI R20 , 0XCE ; R20 = 0XF2
+		OUT TCNT0 , R20 ; LOAD TIMER0
+		LDI R20 , 0X01
+		OUT TCCR0 , R20 ; TIMER0 , NORMAL MODE , INT CLK, NO PRESCALAR
+AGAIN : IN R20 , TIFR ;READ TIFR
+		SBRS R20 , TOV0 ; IF TOV0 IS SET SKIP NEXT INSTRUCTION
+		RJMP AGAIN
+		LDI R20 , 0X00
+		OUT TCCR0, R20 ; STOP TIMER0
+		LDI R20 , (1<<TOV0)
+		OUT TIFR , R20 ; CLEAR TOV0 FLAG BY WRITING a 1 TO TIFR 
+		RET*/
+
+/*Examine the following program and find the time delay in seconds. Exclude the over-
+head due to the instructions in the loop. Assume XTAL = 8 MHz.*//*
+.INCLUDE "M32DEF.INC"
+.MACRO  INITSTACK ; SET OF STACK
+	LDI R20 , HIGH(RAMEND)
+	OUT SPH , R20
+	LDI R20 , LOW(RAMEND)
+	OUT SPL , R20
+.ENDMACRO
+	INITSTACK 
+	LDI R16 , 0x08 ; R16 = 0X20 (0010 0000 FOR PB5)
+	SBI DDRB , 3 ; PB5 AS AN OUTPUT
+	LDI R17, 0
+	OUT PORTB , R17 ; CLEAR PORTB
+BEGIN: RCALL DELAY  ; CALL TIMER DELAY 
+	   EOR  R17, R16 ; TOGGLE D5 OF R17 BY EX-ORING WITH 1
+	   OUT PORTB , R17 ; TOGGLE PB5
+	   RJMP BEGIN
+//----TIMER0 DELAY
+DELAY : LDI R20 , 0X10 ; R20 = 0XF2
+		OUT TCNT0 , R20 ; LOAD TIMER0
+		LDI R20 , 0X03
+		OUT TCCR0 , R20 ; TIMER0 , NORMAL MODE , INT CLK, 64 PRESCALAR
+AGAIN : IN R20 , TIFR ;READ TIFR
+		SBRS R20 , TOV0 ; IF TOV0 IS SET SKIP NEXT INSTRUCTION
+		RJMP AGAIN
+		LDI R20 , 0X00
+		OUT TCCR0, R20 ; STOP TIMER0
+		LDI R20 , (1<<TOV0)
+		OUT TIFR , R20 ; CLEAR TOV0 FLAG BY WRITING a 1 TO TIFR 
+		RET*/
+/*Assuming XTAL = 8 MHz, write a program to generate a square wave of 125 Hz fre-
+quency on pin PORTB.3. Use Timer0, Normal mode, with prescaler = 256.
+
+Solution:
+
+Look at the following steps:
+(a) T=1/ 125 Hz = 8 ms, the period of the square wave.
+(b) 1/2 of it for the high and low portions of the pulse = 4 ms
+(c) (4 ms / 0.125 us) / 256 = 125 and 256 - 125 = 131 in decimal, and in hex it is 0x83.
+(d) TCNT0 = 83 (hex)
+
+4ms
+
+4ms*//*
+.INCLUDE "M32DEF.INC"
+.MACRO  INITSTACK ; SET OF STACK
+	LDI R20 , HIGH(RAMEND)
+	OUT SPH , R20
+	LDI R20 , LOW(RAMEND)
+	OUT SPL , R20
+.ENDMACRO
+	INITSTACK 
+	LDI R16 , 0x08 ; R16 = 0X20 (0010 0000 FOR PB5)
+	SBI DDRB , 3 ; PB5 AS AN OUTPUT
+	LDI R17, 0
+	OUT PORTB , R17 ; CLEAR PORTB
+BEGIN: RCALL DELAY  ; CALL TIMER DELAY 
+	   EOR  R17, R16 ; TOGGLE D5 OF R17 BY EX-ORING WITH 1
+	   OUT PORTB , R17 ; TOGGLE PB5
+	   RJMP BEGIN
+//----TIMER0 DELAY
+DELAY : LDI R20 , 0X83 ; R20 = 0XF2
+		OUT TCNT0 , R20 ; LOAD TIMER0
+		LDI R20 , 0X04
+		OUT TCCR0 , R20 ; TIMER0 , NORMAL MODE , INT CLK, 64 PRESCALAR
+AGAIN : IN R20 , TIFR ;READ TIFR
+		SBRS R20 , TOV0 ; IF TOV0 IS SET SKIP NEXT INSTRUCTION
+		RJMP AGAIN
+		LDI R20 , 0X00
+		OUT TCCR0, R20 ; STOP TIMER0
+		LDI R20 , (1<<TOV0)
+		OUT TIFR , R20 ; CLEAR TOV0 FLAG BY WRITING a 1 TO TIFR 
+		RET*/
+
+/*Find (a) the frequency of the square wave generated in the following code, and (b) the
+duty cycle of this wave. Assume XTAL = 8 MHz.*/
+/*.INCLUDE "M32DEF.INC"
+.MACRO  INITSTACK ; SET OF STACK
+	LDI R20 , HIGH(RAMEND)
+	OUT SPH , R20
+	LDI R20 , LOW(RAMEND)
+	OUT SPL , R20    ;initialise the stack pointer 
+.ENDMACRO
+	INITSTACK 
+	LDI R16 , 0x20 ; R16 = 0X20 (0010 0000 FOR PB5)
+	SBI DDRB , 5 ; PB5 AS AN OUTPUT
+	LDI R18, -150
+	
+BEGIN: SBI PORTB , 5 ; PB5 =1
+	   OUT TCNT0 , R18 ; LOAD TIMER0 BYTE
+	   CALL DELAY
+	   OUT TCNT0 , R18 ; LOAD TIMER0 BYTE
+	   CALL DELAY  ; CALL TIMER DELAY 
+	   CBI PORTB, 5
+	   OUT TCNT0 , R18
+	   CALL DELAY 
+	   RJMP BEGIN
+//----TIMER0 DELAY
+DELAY : LDI R20 , 0X01
+		OUT TCCR0 , R20 ; TIMER0 , NORMAL MODE , INT CLK, NO PRESCALAR
+AGAIN : IN R20 , TIFR ;READ TIFR
+		SBRS R20 , TOV0 ; IF TOV0 IS SET SKIP NEXT INSTRUCTION
+		RJMP AGAIN
+		LDI R20 , 0X00
+		OUT TCCR0, R20 ; STOP TIMER0
+		LDI R20 , (1<<TOV0)
+		OUT TIFR , R20 ; CLEAR TOV0 FLAG BY WRITING a 1 TO TIFR 
+		RET*/
+
+/*Clear Timer0 on compare match (CTC) mode programming
+Examining Figure 9-2 once more, we see the OCRO register. The OCR0 reg-
+ister is used with CTC mode. As with the Normal mode, in the CTC mode, the timer
+is incremented with a clock. But it counts up until the content of the TCNTO register
+becomes equal to the content of OCR0 (compare match occurs); then, the timer will
+be cleared and the OCFO flag will be set when the next clock occurs. The OCFO flag
+is located in the TIFR register. See Figure 9-10 and Examples 9-17 through 9-21.
+Example 9-17
+In the following program, we are creating a square wave of 50% duty cycle (with equal
+portions high and low) on the PORTB.5 bit. Timer0 is used to generate the time delay.
+Analyze the program.
+TMAH*/
+
+/*.INCLUDE "M32DEF.INC"
+.MACRO  INITSTACK ; SET OF STACK
+	LDI R20 , HIGH(RAMEND)
+	OUT SPH , R20
+	LDI R20 , LOW(RAMEND)
+	OUT SPL , R20
+.ENDMACRO
+	INITSTACK 
+	LDI R16 , 0x08 ; R16 = 0X20 (0010 0000 FOR PB5)
+	SBI DDRB , 3 ; PB5 AS AN OUTPUT
+	LDI R17, 0
+	
+BEGIN: OUT PORTB , R17 ; CLEAR PORTB
+	   RCALL DELAY  ; CALL TIMER DELAY 
+	   EOR  R17, R16 ; TOGGLE D5 OF R17 BY EX-ORING WITH 1
+	   OUT PORTB , R17 ; TOGGLE PB5
+	   RJMP BEGIN
+//----TIMER0 DELAY
+DELAY : LDI R20 , 0X0 ; R20 = 0X00
+		OUT TCNT0 , R20 ; LOAD TIMER0
+		LDI R20 , 9
+		OUT OCR0 , R20 ; LOAD OCR0
+		LDI R20 , 0X09
+		OUT TCCR0 , R20 ; TIMER0 , CTC MODE , INT CLK
+AGAIN : IN R20 , TIFR ;READ TIFR
+		SBRS R20 , OCF0 ; IF OCF0 IS SET SKIP NEXT INSTRUCTION
+		RJMP AGAIN
+		LDI R20 , 0X00
+		OUT TCCR0, R20 ; STOP TIMER0
+		LDI R20 , (1<<OCF0)
+		OUT TIFR , R20 ; CLEAR OCF0 FLAG 
+		RET*/
+
+
+/*Find the delay generated by Timer0 in the following program. Do not include the over-
+head due to instructions. (XTAL = 8 MHz)
+Solution:
+
+Due to prescaler = 64 each timer clock lasts 64 x 0.125
+us = 8 us. OCRO is loaded with 89; thus, after 90 clocks
+OCF0 is set. Therefore we have 90 x 8 us = 720 us.*/
+
+/*.INCLUDE "M32DEF.INC" 
+	LDI R16 , 0x08 ; R16 = 0X08 (000 1000 FOR PB5)
+	SBI DDRB , 3 ; PB5 AS AN OUTPUT
+	LDI R17, 0
+	OUT PORTB , R17 ; CLEAR PORTB
+	LDI R20 , 89 
+	OUT OCR0 , R20 ; LOAD TIMER0
+	
+BEGIN:  LDI R20 , 0X0B
+		OUT TCCR0 , R20 ;TIMER 0 , CTC MODE PRESCALAR 64
+//----TIMER0 DELAY
+
+AGAIN : IN R20 , TIFR ;READ TIFR
+		SBRS R20 , OCF0 ; IF OCF0 IS SET SKIP NEXT INSTRUCTION
+		RJMP AGAIN
+		LDI R20 , 0X00
+		OUT TCCR0, R20 ; STOP TIMER0
+		LDI R20 , (1<<OCF0)
+		OUT TIFR , R20 ; CLEAR OCF0 FLAG 
+		EOR R17 , R16 
+		OUT PORTB , R17 
+		RJMP BEGIN*//*
+In the following program, how long does it take for the PB3 to become one? Do not
+include the overhead due to instructions. (XTAL = 8 MHz)*/
+
+/*.INCLUDE "M32DEF.INC" 
+	LDI R16 , 0x08 ; R16 = 0X08 (000 1000 FOR PB5)
+	SBI DDRB , 3 ; PB5 AS AN OUTPUT
+	CBI PORTB , 3
+	LDI R20 , 89 
+	OUT OCR0 , R20 ; OCR0 = 89 
+	LDI R20 , 95 
+	OUT TCNT0 , R20 ; TCNT0= 95
+	
+BEGIN: LDI R20 , 0X09
+	   OUT TCCR0 , R20 ;TIMER 0 , CTC MODE PRESCALAR NO
+//----TIMER0 DELAY
+
+AGAIN : IN R20 , TIFR ;READ TIFR
+		SBRS R20 , OCF0 ; IF OCF0 IS SET SKIP NEXT INSTRUCTION
+		RJMP AGAIN
+		LDI R20 , 0X00
+		OUT TCCR0, R20 ; STOP TIMER0
+		LDI R20 , (1<<OCF0)
+		OUT TIFR , R20 ; CLEAR OCF0 FLAG 
+		EOR R17 , R16 
+		OUT PORTB , R17 
+		RJMP BEGIN*/
+
+
+//
+//Generate a waveform with varying time delays on pb5 using timer2
+/*
+.INCLUDE "M32DEF.INC"
+.MACRO INITSTACK ; SETUP THE STACK
+	LDI R20,HIGH(RAMEND)
+	OUT SPH,R20
+	LDI R20,LOW(RAMEND)
+	OUT SPL,R20
+.ENDMACRO
+	INITSTACK
+	SBI DDRB,5
+BEGIN:SBI PORTB,5
+	  RCALL DELAY
+	  RCALL DELAY
+	  RCALL DELAY
+
+	  CBI PORTB,5
+	  RCALL DELAY
+
+	  SBI PORTB,5
+	  RCALL DELAY
+
+	  CBI PORTB,5
+	  RCALL DELAY
+
+	  SBI PORTB,5
+	  RCALL DELAY
+
+	  CBI PORTB,5
+	  RCALL DELAY
+	  RCALL DELAY
+
+	  RJMP BEGIN
+
+DELAY:LDI R20,0XF0
+	  OUT TCNT2,R20
+	  LDI R20,0X01
+	  OUT TCCR2,R20
+AGAIN:IN R20,TIFR
+	  SBRS R20,TOV2
+	  RJMP AGAIN
+	  LDI R20,0X00
+	  OUT TCCR2,R20
+	  LDI R20,(1<<TOV2)
+	  OUT TIFR,R20
+	  RET*//*
+.INCLUDE "M32DEF.INC"
+.MACRO INITSTACK ; SETUP THE STACK
+	LDI R20,HIGH(RAMEND)
+	OUT SPH,R20
+	LDI R20,LOW(RAMEND)
+	OUT SPL,R20
+.ENDMACRO
+	INITSTACK
+	CBI */
+
+
+
+.INCLUDE "M32DEF.INC"
+.MACRO INITSTACK
+		LDI R20,HIGH(RAMEND)
+		OUT SPH, R20
+		LDI R20,LOW(RAMEND)
+		OUT SPL, R20
+.ENDMACRO
+
+		INITSTACK 
+		LDI R16,0X20
+		SBI DDRB,5
+		LDI R18,10
+BEGIN:	SBI PORTB,5			;PB5=1
+		OUT TCNT0,R18
+		CALL DELAY
+		OUT TCNT0,R18
+		CALL DELAY
+		CBI PORTB,5			;PB5=0
+		OUT TCNT0,R18
+		CALL DELAY
+		RJMP BEGIN
+//---------------Timer0 Delay Function----------
+DELAY:	LDI R20,0X01
+		OUT TCCR0,R20 ;Timer0, normal mode, internal clock, no prescalar
+AGAIN:	IN R20,TIFR  ;read TIFR
+		SBRS R20,TOV0
+		RJMP AGAIN
+		LDI R20,0X00
+		OUT TCCR0, R20  ;stop Timer0
+		LDI R20,1<<TOV0
+		OUT TIFR,R20
+		RET
+
+		
+
+/*// GENERATE TON=1 SECOND AND TOFF=1 SECOND 
+//PROGRAM IT USING TIMER 0, NORMAL MODE, PRESCALAR=1024.
+// CREATE A DELAY FOR 20ms AND ITERATE IT 50 TIMES TO CREATE 1 SECOND DELAY
+
+ .INCLUDE "M32DEF.INC"
+.MACRO INITSTACK
+		LDI R20,HIGH(RAMEND)
+		OUT SPH, R20
+		LDI R20,LOW(RAMEND)
+		OUT SPL, R20
+.ENDMACRO
+
+
+		INITSTACK 
+		SBI DDRB,4      //PB4 as output PIN
+REPEAT:	LDI R30,50
+		SBI PORTB,4
+BACK1:	RCALL DELAY
+		DEC R30
+		BRNE BACK1
+		LDI R30,50
+		CBI PORTB,4	
+BACK2:	RCALL DELAY
+		DEC R30
+		BRNE BACK2
+		RJMP REPEAT
+		CBI PORTB,5
+		RCALL DELAY   // CALL DALY FUNCTION ONCE FOR TOFF
+		SBI PORTB,5	
+		RCALL DELAY
+		RCALL DELAY  // CALL DELAY FUNCTION TWICE FOR TON
+		RJMP BEGIN
+;----------------------Timer0 Delay function--------------
+DELAY:	LDI R20,0X64
+		OUT TCNT0,R20  // LOAD TCNT0=0XF0 FOR 2 MICRO SECOND DELAY
+		LDI R20,0X05
+		OUT TCCR0,R20	//Timer0, normal mode, internal clock, no prescalar
+AGAIN:	IN R20,TIFR		//read TIFR
+		SBRS R20,TOV0	//If TOV0 is set skip next instruction
+		RJMP AGAIN
+		LDI R20,0X00
+		OUT TCCR0,R20	// stop Timer0
+		LDI R20,(1<<TOV0)
+		OUT TIFR,R20	// clear TOV0 flag by writing a 1 to TIFR
+		RET
+		*/

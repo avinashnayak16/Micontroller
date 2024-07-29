@@ -1,0 +1,54 @@
+//Assuming 1Hz signal fed to T0 , wap for 16 bit counter0 in normal mode to count the pulses o
+//on falling edge and display count on Portc and PortD
+.INCLUDE "M32DEF.INC"
+CBI DDRB, 0 ; T0 IS INPUT
+LDI R20 , 0XFF
+OUT DDRC , R20 ; MAKE PORT C AS OUPUT
+LDI R20 , 0XFF 
+OUT DDRD , R20  ;MAKE PORT D AS OUPUT 
+LDI R20 , 0X06
+OUT TCCR0 , R20 ;COUNTER  FALLING EDGE
+
+AGAIN:
+	IN R20 , TCNT0   ; INITIALIYY TCNT0 IS VALUE IS 0
+	OUT PORTC, R20 
+	IN R16 , TIFR
+	SBRS R16 , TOV0
+	RJMP AGAIN
+	LDI R16 , 1<<TOV0
+	OUT TIFR , R16
+	INC R19
+	OUT PORTD , R19
+	RJMP AGAIN
+
+/*
+//assuming that clock pulses are fed into pin T1(PB1)
+//and Buzzer is connected to pin portc.o wap for counter
+//mode to sound buzzer every 100 pulses
+
+.INCLUDE "M32DEF.INC"
+CBI DDRB, 1  ; MAKE T1 (PB1 )INPUT 
+SBI DDRC, 0  ; PC0 AS IAN OUTPUT
+LDI R16, 0X1
+LDI R17 , 0
+
+LDI R20 , 0X00
+OUT TCCR1A , R20 
+LDI R20 , 0X0E
+OUT TCCR1B , R20
+AGAIN:
+	LDI R20 , 0
+	OUT OCR1AH , R20 ; TEMP =0
+	LDI R20 , 99
+	OUT OCR1AL ,R20 ; OCR1L = R20 AND OCR1H = TEMP
+L1:
+	IN R20 , TIFR 
+	SBRS R20 , OCF1A
+	RJMP L1     ; KEEP DOING IT 
+	LDI R20 , 1<<OCF1A  ; CLEAR OCF1A FLAG
+	OUT TIFR , R20 
+
+	EOR R17 , R16   ;TOGGLE D0 OF R17
+	OUT PORTC,R17   ; TOGGLE PC0
+	RJMP AGAIN    ; KEEP DOING IT 
+*/

@@ -1,0 +1,32 @@
+<ASSEMBLER_INFO>
+ <VERSION>2.2.8</VERSION>
+ <DEVICE>"ATmega32"</DEVICE>
+ <WORKING_DIR>C:\Users\avina\OneDrive\Documents\Microchip Studio\Assembler_2\Assembler_2\Debug</WORKING_DIR>
+ <INCLUDE_PATH>
+  <DIR>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc</DIR>
+  <DIR>C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avrassembler\Include</DIR>
+  <DIR></DIR>
+ </INCLUDE_PATH>
+ <SOURCE_FILE>C:\Users\avina\OneDrive\Documents\Microchip Studio\Assembler_2\Assembler_2\main.asm</SOURCE_FILE>
+ <INCLUDED_FILES>
+  <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\m32def.inc</FILE>
+  <FILE>C:/Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.6.364\avrasm\inc\M32DEF.INC</FILE>
+ </INCLUDED_FILES>
+ <OBJECT_FILES>
+  <FILE>C:\Users\avina\OneDrive\Documents\Microchip Studio\Assembler_2\Assembler_2\Debug\Assembler_2.obj</FILE>
+ </OBJECT_FILES>
+ <HEX_FILES>
+  <FILE>Assembler_2.hex</FILE>
+ </HEX_FILES>
+ <OUTPUT_FILES>
+  <FILE>Assembler_2.map</FILE>
+  <FILE>Assembler_2.lss</FILE>
+ </OUTPUT_FILES>
+ <LABELS>
+  <REPEAT><FILE>C:\Users\avina\OneDrive\Documents\Microchip Studio\Assembler_2\Assembler_2\main.asm</FILE><LINE>58</LINE></REPEAT>
+  <BACK1><FILE>C:\Users\avina\OneDrive\Documents\Microchip Studio\Assembler_2\Assembler_2\main.asm</FILE><LINE>60</LINE></BACK1>
+  <DELAY><FILE>C:\Users\avina\OneDrive\Documents\Microchip Studio\Assembler_2\Assembler_2\main.asm</FILE><LINE>70</LINE></DELAY>
+  <BACK2><FILE>C:\Users\avina\OneDrive\Documents\Microchip Studio\Assembler_2\Assembler_2\main.asm</FILE><LINE>65</LINE></BACK2>
+  <AGAIN><FILE>C:\Users\avina\OneDrive\Documents\Microchip Studio\Assembler_2\Assembler_2\main.asm</FILE><LINE>74</LINE></AGAIN>
+ </LABELS>
+</ASSEMBLER_INFO>
